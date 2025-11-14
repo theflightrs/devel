@@ -157,6 +157,11 @@ function devel_generate_add_comments($node, $users, $max_comments, $title_length
     return;
   }
 
+  // Fix: Ensure $users is not null or empty
+  if (empty($users)) {
+    return;
+  }
+
   $num_comments = mt_rand(1, $max_comments);
   for ($i = 1; $i <= $num_comments; $i++) {
     $comment = new Comment();
@@ -180,7 +185,7 @@ function devel_generate_add_comments($node, $users, $max_comments, $title_length
     // The subject column has a max character length of 64
     // See bug: http://drupal.org/node/1024340
     $comment->subject = substr(devel_create_greeking(mt_rand(2, $title_length), TRUE), 0, 63);
-    $comment->uid = $users[array_rand($users)];
+    $comment->uid = $users[array_rand($users)]; // This line was causing the error
     $comment->language = LANGUAGE_NONE;
     // Populate all core fields on behalf of field.module
     module_load_include('inc', 'devel_generate', 'devel_generate.fields');
@@ -188,6 +193,7 @@ function devel_generate_add_comments($node, $users, $max_comments, $title_length
     comment_save($comment);
   }
 }
+
 
 function devel_generate_vocabs($records, $maxlength = 12, $types = array('page', 'article')) {
   $vocs = array();
