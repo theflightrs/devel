@@ -28,6 +28,16 @@ function date_devel_generate($entity, $field, $instance, $bundle) {
     $back = 2;
     $forward = 2;
   }
+  
+  // Ensure back and forward values are non-negative
+  $back = max(0, (int) $back);
+  $forward = max(0, (int) $forward);
+  
+  // Ensure forward is not less than back to prevent negative range
+  if ($forward < $back) {
+    $forward = $back;
+  }
+
   // Pick a random year within the time range,
   // and a random second within that year.
   $year = date_format(date_now(), 'Y') - $back + mt_rand(0, ($forward + $back));
