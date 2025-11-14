@@ -68,16 +68,23 @@ function _image_devel_generate($object, $field, $instance, $bundle) {
  *
  * This function only works with the GD toolkit. ImageMagick is not supported.
  */
-function devel_generate_image($extension = 'png', $min_resolution = 0, $max_resolution = 100000) {
+function devel_generate_image($extension = 'png', $min_resolution = '100x100', $max_resolution = '600x600') {
   if ($tmp_file = backdrop_tempnam('temporary://', 'imagefield_')) {
     $destination = $tmp_file . '.' . $extension;
     file_unmanaged_move($tmp_file, $destination, FILE_CREATE_DIRECTORY);
 
+    // Fix: Ensure we have proper values for min and max resolution
     $min = explode('x', $min_resolution);
     $max = explode('x', $max_resolution);
 
-    $width = rand((int)$min[0], (int)$max[0]);
-    $height = rand((int)$min[1], (int)$max[1]);
+    // Handle case where explode might return array with fewer elements
+    $min_width = isset($min[0]) ? (int)$min[0] : 100;
+    $min_height = isset($min[1]) ? (int)$min[1] : 100;
+    $max_width = isset($max[0]) ? (int)$max[0] : 600;
+    $max_height = isset($max[1]) ? (int)$max[1] : 600;
+
+    $width = rand($min_width, $max_width);
+    $height = rand($min_height, $max_height);
 
     $half_width = (int)($width/2);
     $half_height = (int)($height/2);
@@ -100,7 +107,8 @@ function devel_generate_image($extension = 'png', $min_resolution = 0, $max_reso
     $save_function = 'image'. ($extension == 'jpg' ? 'jpeg' : $extension);
     $save_function($im, backdrop_realpath($destination));
 
-    $images[$extension][$min_size][$max_size][$destination] = $destination;
+    // Fix: Remove the undefined $images variable that was causing issues
+    return $destination;
   }
-  return $destination;
+  return FALSE;
 }
